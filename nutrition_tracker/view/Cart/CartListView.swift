@@ -2,10 +2,9 @@ import SwiftUI
 
 struct CartListView: View {
     @StateObject private var viewModel = CartViewModel()
+    @State private var showCreateCartSheet = false
+    @State private var newCartName: String = ""
     
-    init() {
-            _viewModel = StateObject(wrappedValue: CartViewModel())
-        }
     
     var body: some View {
     
@@ -25,30 +24,16 @@ struct CartListView: View {
                         .foregroundColor(.gray)
                         .padding()
                     ProgressView()
-                } else {
+                }
+                else {
                 
-                    List {
-                        ForEach(viewModel.carts) { cart in
-                            NavigationLink(destination: CartDetailsView()) {
+                    CartListSection(viewModel: viewModel)
 
-                            CartSectionView(cart: cart)
-                                .swipeActions {
-                                    Button(role: .destructive) {
-                                        viewModel.deleteCart(cartId: cart.id)
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                }
-                            }
-    
-                        
-                        }
-                    }
                     .navigationTitle("Carts")
                     .toolbar{
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button(action: {
-                                viewModel.createCart(named: "New cart")
+                                showCreateCartSheet = true
                             }){
                                 Image(systemName: "plus")
                             }
@@ -60,6 +45,23 @@ struct CartListView: View {
                 if let error = viewModel.errormessage {
                     Text("❌ \(error)")
                         .foregroundColor(.red)
+                }
+            }.sheet(isPresented: $showCreateCartSheet) {
+                VStack(spacing: 20) {
+                    Text("Name you cart")
+                        .font(.headline)
+                    
+                    TextField("Cart name", text: $newCartName)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding()
+                    Button("Create") {
+                        viewModel.createCart(named: newCartName)
+                        newCartName = ""
+                        showCreateCartSheet = false
+                    }
+                    Button("Cancel") {
+                        showCreateCartSheet = false
+                    }
                 }
             }
            

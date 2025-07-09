@@ -83,4 +83,28 @@ enum CartService {
             }
         }.resume()
     }
+    static func deleteProduct(cartId: Int, productId: Int, completion: @escaping (Result<Void, Error> ) -> Void) {
+        guard let apiUrl = Bundle.main.infoDictionary?["API_BASE_URL"] as? String,
+              let url = URL(string: "\(apiUrl)/cart/remove") else {
+            completion(.failure(NSError(domain: "Invalid URL", code: -1)))
+            return
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "content-type")
+        let body: [String: Any] = ["cartId": cartId, "productId": productId]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            completion(.success(()))
+    
+            
+        }.resume()
+        
+        
+    }
 }

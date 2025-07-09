@@ -45,8 +45,25 @@ class CartViewModel: ObservableObject {
                     print("❌ \(error)")
                 }
             }
-        
+            
         }
         
+    }
+    func deleteProduct(cartId: Int, productId: Int) {
+        CartService.deleteProduct(cartId: cartId, productId: productId) { result in
+            print(cartId, productId)
+            DispatchQueue.main.async {
+                switch result {
+                case .success():
+                    if let index = self.carts.firstIndex(where: { $0.id == cartId }) {
+                        self.loadCarts()
+                    }
+                    
+                case .failure(let error):
+                    self.errormessage = "Failed to delete product: \(error.localizedDescription)"
+                    print("❌ \(error)")
+                }
+            }
+        }
     }
 }
